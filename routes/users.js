@@ -1,8 +1,15 @@
 const router = require("express").Router();
-const User = require("../models/User");
+const User = require("../models/Schemas");
 const CryptoJS = require("crypto-js");
 const verify = require("../verifyToken");
 //UPDATE
+const { registerUser, loginUser } = require("../controllers/authUser");
+const { registerAdmin, loginAdmin } = require("../controllers/authAdmin");
+
+// User registration route
+router.post("/register", registerUser);
+// User login route
+router.post("/login", loginUser);
 
 router.put("/:id", verify, async (req, res) => {
   if (req.user.id === req.params.id || req.user.isAdmin) {
@@ -92,7 +99,7 @@ router.get("/stats", async (req, res) => {
         },
       },
     ]);
-    res.status(200).json(data)
+    res.status(200).json(data);
   } catch (err) {
     res.status(500).json(err);
   }
