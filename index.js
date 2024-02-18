@@ -25,8 +25,8 @@ mongoose
 app.use(express.json());
 app.use(cors());
 
-app.use("/admin/", AdminRoute);
-app.use("/user/", userRoute);
+app.use("/Server/admin/", AdminRoute);
+app.use("/Server/user/", userRoute);
 app.use("/exams/", ExamRoute);
 
 app.get("/", (req, res) => {

@@ -8,6 +8,7 @@ const { registerAdmin, loginAdmin } = require("../controllers/authAdmin");
 
 // User registration route
 router.post("/register", registerUser);
+
 // User login route
 router.post("/login", loginUser);
 
