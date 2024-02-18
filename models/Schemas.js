@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     profilePic: { type: String, default: "" },
     institutionName: { type: String, required: true }, // Common attribute for both users and admins
-    role: { type: String, enum: ["User"], default: "user" }, // Default role is user
+    role: { type: String, enum: ["User", "user"], default: "user" }, // Default role is user
     // Other attributes common to users
   },
   { timestamps: true }
