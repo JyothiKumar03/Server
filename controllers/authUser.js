@@ -36,6 +36,7 @@ exports.registerUser = async (req, res) => {
 // Function to handle user login
 exports.loginUser = async (req, res) => {
   try {
+    console.log("route called");
     // Extract data from request body
     const { email, password } = req.body;
 

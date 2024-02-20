@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const AdminRoute = require("./routes/admins");
 const userRoute = require("./routes/users");
-const ExamRoute = require("./routes/exams");
+// const ExamRoute = require("./routes/exams");
 
 dotenv.config();
 
@@ -27,7 +27,7 @@ app.use(cors());
 
 app.use("/admin/", AdminRoute);
 app.use("/user/", userRoute);
-app.use("/exams/", ExamRoute);
+// app.use("/exams/", ExamRoute);
 
 app.get("/", (req, res) => {
   res.send("The server is running!!");
