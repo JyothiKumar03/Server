@@ -1,18 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const { authenticateAdmin, authenticateUser } = require("../middleware/auth");
+const { authenticateAdmin, authenticateUser } = require("../middleware/autheticate");
 const {
   createExam,
   updateExam,
   getAllExams,
   getExamById,
-  getAllExamsForUser,
-  getExamByIdForUser,
-  submitExamAttempt,
-  updateExamAttempt,
-  getAllAttemptsForUser,
-  getAttemptByIdForUser,
-} = require("../controllers/examController");
+  
+} = require("../controllers/AdminExamsRoutes");
+const { getAllExamsForUser,
+    getExamByIdForUser,
+    submitExamAttempt,
+    updateExamAttempt,
+    getAllAttemptsForUser,
+    getAttemptByIdForUser,} =require ("../controllers/UserAttempts");
 
 // Admin routes
 router.post("/admin/exams", authenticateAdmin, createExam);

@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../models/Schemas");
 
 // Function to handle user registration
-exports.registerUser = async (req, res) => {
+const registerUser = async (req, res) => {
   try {
     // Extract data from request body
     const { username, email, password, profilePic, institutionName } = req.body;
@@ -34,12 +34,12 @@ exports.registerUser = async (req, res) => {
 };
 
 // Function to handle user login
-exports.loginUser = async (req, res) => {
+const loginUser = async (req, res) => {
   try {
     console.log("route called");
     // Extract data from request body
-    const { email, password } = req.body;
-
+    const email = req.body.email;
+    const password = req.body.password;
     // Check if the user exists
     let user = await User.findOne({ email });
     if (!user) {
@@ -75,3 +75,5 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
+
+module.exports = {registerUser, loginUser}

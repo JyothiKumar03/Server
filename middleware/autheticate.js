@@ -1,11 +1,11 @@
 const jwt = require("jsonwebtoken");
-const Admin = require("../models/Admin");
-const User = require("../models/User");
+const Admin = require("../models/Schemas");
+const User = require("../models/Schemas");
 const dotenv = require("dotenv");
 dotenv.config();
 
 // Middleware function to authenticate admin
-exports.authenticateAdmin = async function (req, res, next) {
+const authenticateAdmin = async function (req, res, next) {
   const token = req.header("x-auth-token");
 
   if (!token) {
@@ -29,7 +29,7 @@ exports.authenticateAdmin = async function (req, res, next) {
 };
 
 // Middleware function to authenticate user
-exports.authenticateUser = async function (req, res, next) {
+const authenticateUser = async function (req, res, next) {
   const token = req.header("x-auth-token");
 
   if (!token) {
@@ -51,3 +51,6 @@ exports.authenticateUser = async function (req, res, next) {
     res.status(401).json({ message: "Token is not valid" });
   }
 };
+
+
+module.exports = { authenticateAdmin, authenticateUser };
