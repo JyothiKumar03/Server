@@ -6,6 +6,7 @@ const { User } = require("../models/Schemas");
 const registerUser = async (req, res) => {
   try {
     // Extract data from request body
+    console.log(req.body);
     const { username, email, password, profilePic, institutionName } = req.body;
 
     // Check if the user already exists
@@ -28,6 +29,7 @@ const registerUser = async (req, res) => {
       .status(201)
       .json({ message: "User registered successfully", user: user });
   } catch (error) {
+    console.log("err-body", req.body);
     console.error(error);
     res.status(500).json({ message: `Server Error -> ${error.message}` });
   }
@@ -36,13 +38,17 @@ const registerUser = async (req, res) => {
 // Function to handle user login
 const loginUser = async (req, res) => {
   try {
+    console.log("route called");
     // Extract data from request body
     const email = req.body.email;
     const password = req.body.password;
     // Check if the user exists
     let user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      console.log("user not found");
+      return res
+        .status(400)
+        .json({ message: "Invalid credentials, user not found" });
     }
 
     // Compare passwords
@@ -56,7 +62,9 @@ const loginUser = async (req, res) => {
       user: {
         id: user.id,
         role: user.role,
+        name: user.username,
         email: user.email,
+        institution: user.institutionName,
       },
     };
 
@@ -75,4 +83,4 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = {registerUser, loginUser}
+module.exports = { registerUser, loginUser };

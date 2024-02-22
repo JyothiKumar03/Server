@@ -6,9 +6,11 @@ const dotenv = require("dotenv");
 const AdminRoute = require("./routes/admins");
 const userRoute = require("./routes/users");
 const ExamRoute = require("./routes/exams");
+const bodyParser = require("body-parser");
 
 dotenv.config();
-
+app.use(bodyParser.json({ limit: "10mb" }));
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 // Ensure that the MongoDB connection string includes the correct write concern mode 'majority'
 mongoose
   .connect(process.env.MONGO_URL, {
