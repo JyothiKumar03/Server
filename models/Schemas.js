@@ -29,6 +29,7 @@ const ExamSchema = new mongoose.Schema({
   timeDuration: { type: Number, required: true }, // Time duration in minutes
   googleFormLink: { type: String, required: true },
   postedForStudents: { type: Boolean, default: false }, // Boolean to indicate if exam is posted for students
+  admin: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", required: true }, // Reference to Admin document
 
   // Other properties related to the exam
 });

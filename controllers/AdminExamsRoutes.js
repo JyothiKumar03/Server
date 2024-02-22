@@ -42,7 +42,9 @@ exports.updateExam = async (req, res) => {
 // Get All Exams
 exports.getAllExams = async (req, res) => {
   try {
-    const exams = await Exam.find({ admin: req.admin.id });
+    console.log("the request received -> ", req.admin);
+    const exams = await Exam.find({ admin: req.admin });
+    console.log("send to UI, exams -> ", exams);
     res.json(exams);
   } catch (error) {
     console.error(error);
@@ -60,6 +62,34 @@ exports.getExamById = async (req, res) => {
     res.json(exam);
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+//delete exam from DB
+
+exports.deleteExam = async (req, res) => {
+  try {
+    const examId = req.params.id;
+    console.log("exam del id", examId);
+    // Check if the exam exists
+    const exam = await Exam.findOne({ _id: examId });
+    console.log("examid ", exam);
+    if (!exam) {
+      return res.status(404).json({ message: "Exam not found" });
+    }
+    console.log("admin in exam", exam.admin);
+    // Check if the exam belongs to the authenticated admin
+    if (exam.admin !== req.admin._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized access" });
+    }
+
+    // Delete the exam
+    await exam.deleteOne();
+
+    res.status(200).json({ message: "Exam deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting exam:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };

@@ -1,28 +1,55 @@
-const { Attempt } = require("../models/Schemas");
+const { Attempt, Exam } = require("../models/Schemas");
 
 //User logic for the students
-
 // Get All Exams For User
+
 exports.getAllExamsForUser = async (req, res) => {
   try {
-    const exams = await Exam.find({ postedForStudents: true });
-    res.json(exams);
+    const userInstitution = req.user.institution;
+    console.log("all exams called");
+    const exams = await Exam.find({
+      postedForStudents: true,
+      //institution: userInstitution, // Filter exams by the user's institution
+    })
+      .populate({
+        path: "admin",
+        match: { institution: userInstitution }, // Further filter by the admin's institution
+      })
+      .exec();
+    //console.log("admin in exam", exams.admin);
+
+    // Remove exams where the admin's institution does not match the user's institution
+    const filteredExams = exams.filter((exam) => exam.admin !== null);
+    console.log(exams);
+    //console.log(filteredExams);
+    res.json(filteredExams);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
 
-// Get Exam By ID For User
 exports.getExamByIdForUser = async (req, res) => {
   try {
+    console.log("route by id called");
+    const userInstitution = req.query;
+    console.log(userInstitution + "\n\n" + req.params.id);
     const exam = await Exam.findOne({
       _id: req.params.id,
       postedForStudents: true,
-    });
-    if (!exam) {
+      //institution: userInstitution, // Filter the exam by the user's institution
+    })
+      .populate({
+        path: "admin",
+        match: { institution: userInstitution }, // Further filter by the admin's institution
+      })
+      .exec();
+    //console.log("admin in exam", exam.admin);
+
+    if (!exam || !exam.admin) {
       return res.status(404).json({ message: "Exam not found" });
     }
+    console.log(exam);
     res.json(exam);
   } catch (error) {
     console.error(error);
