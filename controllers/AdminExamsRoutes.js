@@ -1,95 +1,136 @@
-const { Exam } = require("../models/Schemas");
+const { QuestionForm, Admin } = require("../models/Schemas");
+const shortid = require("shortid");
 
-//Admin logic  for adding, deleting and updating exams.
-
-// Create Exam
-exports.createExam = async (req, res) => {
+// Create QuestionForm
+exports.createQuestionForm = async (req, res) => {
   try {
-    const { title, timeDuration, googleFormLink } = req.body;
-    const newExam = new Exam({
+    const { title, description, timeDuration, questions } = req.body;
+    const { _id } = req.admin; // Assuming req.admin contains the logged-in admin's details
+    console.log('admin called - ', req.admin);
+    const googleFormLink = shortid.generate();
+    console.log('create form route invoked', req.body);
+    
+    // Create a new QuestionForm document
+    const newQuestionForm = new QuestionForm({
       title,
+      description,
       timeDuration,
       googleFormLink,
-      admin: req.admin.id,
+      createdBy: _id,
+      questions,
+      ansForms : [],
     });
-    const exam = await newExam.save();
-    res.status(201).json(exam);
+    
+    // Save the new QuestionForm document
+    const questionForm = await newQuestionForm.save();
+    
+    // Find the corresponding admin document and update the questionforms array
+    const admin = await Admin.findById(_id);
+    admin.questionforms.push(questionForm._id);
+    await admin.save();
+    
+    res.status(201).json(questionForm);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
 
-// Update Exam
-exports.updateExam = async (req, res) => {
+
+// Update QuestionForm
+exports.updateQuestionForm = async (req, res) => {
   try {
-    const { title, timeDuration, googleFormLink, postedForStudents } = req.body;
-    const exam = await Exam.findByIdAndUpdate(
+    // Set postedForStudents to true by default
+    const updatedFields = {
+      postedForStudents: true, // Set to true by default
+    };
+
+    const questionForm = await QuestionForm.findByIdAndUpdate(
       req.params.id,
-      { title, timeDuration, googleFormLink, postedForStudents },
+      updatedFields,
       { new: true }
     );
-    if (!exam) {
-      return res.status(404).json({ message: "Exam not found" });
+
+    if (!questionForm) {
+      return res.status(404).json({ message: "QuestionForm not found" });
     }
-    res.json(exam);
+
+    res.status(200).json(questionForm);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
 
-// Get All Exams
-exports.getAllExams = async (req, res) => {
+
+// Get All QuestionForms
+exports.getAllQuestionForms = async (req, res) => {
   try {
-    console.log("the request received -> ", req.admin);
-    const exams = await Exam.find({ admin: req.admin });
-    console.log("send to UI, exams -> ", exams);
-    res.json(exams);
+    console.log(req.admin);
+    const admin_forms = await Admin.findById(req.admin).populate('questionforms');
+    console.log('all questions - ', admin_forms.questionforms)
+    res.json(admin_forms.questionforms); // Note the lowercase 'questionforms'
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
 
-// Get Exam by ID
-exports.getExamById = async (req, res) => {
+
+// Get QuestionForm by ID
+exports.getQuestionFormById = async (req, res) => {
   try {
-    const exam = await Exam.findById(req.params.id);
-    if (!exam) {
-      return res.status(404).json({ message: "Exam not found" });
+    console.log('get id form route invoked - ',req.params.id);
+    const questionForm = await QuestionForm.findById(req.params.id);
+    if (!questionForm) {
+      return res.status(404).json({ message: "QuestionForm not found" });
     }
-    res.json(exam);
+    console.log('qs from server - ',questionForm);
+    res.json(questionForm);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
 
-//delete exam from DB
-
-exports.deleteExam = async (req, res) => {
+// Delete QuestionForm
+exports.deleteQuestionForm = async (req, res) => {
   try {
-    const examId = req.params.id;
-    console.log("exam del id", examId);
-    // Check if the exam exists
-    const exam = await Exam.findOne({ _id: examId });
-    console.log("examid ", exam);
-    if (!exam) {
-      return res.status(404).json({ message: "Exam not found" });
+    const questionFormId = req.params.id;
+    const questionForm = await QuestionForm.findOne({ _id: questionFormId });
+    if (!questionForm) {
+      return res.status(404).json({ message: "QuestionForm not found" });
     }
-    console.log("admin in exam", exam.admin);
-    // Check if the exam belongs to the authenticated admin
-    if (exam.admin !== req.admin._id.toString()) {
+    if (questionForm.createdBy.toString() !== req.admin.id.toString()) {
       return res.status(403).json({ message: "Unauthorized access" });
     }
-
-    // Delete the exam
-    await exam.deleteOne();
-
-    res.status(200).json({ message: "Exam deleted successfully" });
+    await questionForm.deleteOne();
+    res.status(200).json({ message: "QuestionForm deleted successfully" });
   } catch (error) {
-    console.error("Error deleting exam:", error);
+    console.error("Error deleting questionForm:", error);
     res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// Toggle Form Status
+exports.toggleFormStatus = async (req, res) => {
+  try {
+    const { formId } = req.params;
+    const questionForm = await QuestionForm.findById(formId);
+    if (!questionForm) {
+      return res.status(404).json({ message: "QuestionForm not found" });
+    }
+    // Check if the user accessing this route is an admin
+    if (questionForm.createdBy.toString() !== req.admin.id.toString()) {
+      return res.status(403).json({ message: "Unauthorized access" });
+    }
+    questionForm.accepting = !questionForm.accepting;
+    await questionForm.save();
+    return res
+      .status(200)
+      .json({ message: "Form status toggled successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server Error" });
   }
 };

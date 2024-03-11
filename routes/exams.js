@@ -5,40 +5,58 @@ const {
   authenticateUser,
 } = require("../middleware/autheticate");
 const {
-  createExam,
-  updateExam,
-  getAllExams,
-  getExamById,
-  deleteExam,
+  createQuestionForm,
+  updateQuestionForm,
+  getAllQuestionForms,
+  getQuestionFormById,
+  deleteQuestionForm,
+  toggleFormStatus,
 } = require("../controllers/AdminExamsRoutes");
 const {
-  getAllExamsForUser,
-  getExamByIdForUser,
-  submitExamAttempt,
-  updateExamAttempt,
+  getAllQuestionFormsForUser,
+  getQuestionFormByIdForUser,
+  submitQuestionFormAttempt,
+  updateQuestionFormAttempt,
   getAllAttemptsForUser,
   getAttemptByIdForUser,
 } = require("../controllers/UserAttempts");
 
 // Admin routes
-router.post("/admin/exams", authenticateAdmin, createExam);
-router.put("/admin/exams/:id", authenticateAdmin, updateExam);
-router.get("/admin/exams", authenticateAdmin, getAllExams);
-router.get("/admin/exams/:id", authenticateAdmin, getExamById);
-router.delete("/admin/exams/:id", authenticateAdmin, deleteExam);
+router.post("/admin/questionforms",authenticateAdmin,  createQuestionForm);
+router.put("/admin/questionforms/:id",authenticateAdmin, updateQuestionForm);
+router.get("/admin/questionforms",authenticateAdmin, getAllQuestionForms);
+router.get("/admin/questionforms/:id", authenticateAdmin, getQuestionFormById);
+router.delete(
+  "/admin/questionforms/:id",
+  authenticateAdmin,
+  deleteQuestionForm
+);
+router.post(
+  "/admin/questionforms/:formId/toggle",
+  authenticateAdmin,
+  toggleFormStatus
+);
 
 // User routes
-router.get("/exams", authenticateUser, getAllExamsForUser);
-router.get("/exams/:id", authenticateUser, getExamByIdForUser);
-router.post("/exams/:id/attempts", authenticateUser, submitExamAttempt);
-router.put(
-  "/exams/:examId/attempts/:attemptId",
+router.get("/questionforms",  getAllQuestionFormsForUser);
+router.get("/questionforms/:id",  getQuestionFormByIdForUser);
+router.post(
+  "/questionforms/attempts",
   authenticateUser,
-  updateExamAttempt
+  submitQuestionFormAttempt
 );
-router.get("/exams/:id/attempts", authenticateUser, getAllAttemptsForUser);
+router.put(
+  "/questionforms/:questionFormId/attempts/:attemptId",
+  authenticateUser,
+  updateQuestionFormAttempt
+);
 router.get(
-  "/exams/:examId/attempts/:attemptId",
+  "/questionforms/:id/attempts",
+  authenticateUser,
+  getAllAttemptsForUser
+);
+router.get(
+  "/questionforms/:questionFormId/attempts/:attemptId",
   authenticateUser,
   getAttemptByIdForUser
 );

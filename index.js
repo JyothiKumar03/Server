@@ -7,6 +7,7 @@ const AdminRoute = require("./routes/admins");
 const userRoute = require("./routes/users");
 const ExamRoute = require("./routes/exams");
 const bodyParser = require("body-parser");
+const sendEmailRoutes = require("./controllers/sendEmail");
 
 dotenv.config();
 app.use(bodyParser.json({ limit: "10mb" }));
@@ -30,6 +31,7 @@ app.use(cors());
 app.use("/Server/admin/", AdminRoute);
 app.use("/Server/user/", userRoute);
 app.use("/exams/", ExamRoute);
+app.use("/sendEmail", sendEmailRoutes);
 
 app.get("/", (req, res) => {
   res.send("The server is running!!");
