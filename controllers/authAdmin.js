@@ -4,6 +4,7 @@ const { Admin, User } = require("../models/Schemas");
 
 exports.registerAdmin = async (req, res) => {
   try {
+    console.log(req.body);
     const { adminname, email, password, institutionName } = req.body;
     let admin = await Admin.findOne({ email: email });
     if (admin) {

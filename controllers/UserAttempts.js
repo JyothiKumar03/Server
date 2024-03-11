@@ -1,72 +1,81 @@
-const { Attempt, Exam } = require("../models/Schemas");
+const { Attempt, QuestionForm } = require("../models/Schemas");
 
-//User logic for the students
-// Get All Exams For User
-
-exports.getAllExamsForUser = async (req, res) => {
+// Get All QuestionForms For User
+exports.getAllQuestionFormsForUser = async (req, res) => {
   try {
-    const userInstitution = req.user.institution;
-    console.log("all exams called");
-    const exams = await Exam.find({
+    const questionForms = await QuestionForm.find({
       postedForStudents: true,
-      //institution: userInstitution, // Filter exams by the user's institution
+      //institution: userInstitution, // Filter questionForms by the user's institution
     })
       .populate({
-        path: "admin",
+        path: "createdBy",
         match: { institution: userInstitution }, // Further filter by the admin's institution
       })
       .exec();
-    //console.log("admin in exam", exams.admin);
+    //console.log("admin in questionForm", questionForms.createdBy);
 
-    // Remove exams where the admin's institution does not match the user's institution
-    const filteredExams = exams.filter((exam) => exam.admin !== null);
-    console.log(exams);
-    //console.log(filteredExams);
-    res.json(filteredExams);
+    // Remove questionForms where the admin's institution does not match the user's institution
+    const filteredQuestionForms = questionForms.filter(
+      (questionForm) => questionForm.createdBy !== null
+    );
+    console.log(questionForms);
+    //console.log(filteredQuestionForms);
+    res.json(filteredQuestionForms);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
 
-exports.getExamByIdForUser = async (req, res) => {
+exports.getQuestionFormByIdForUser = async (req, res) => {
   try {
     console.log("route by id called");
-    const userInstitution = req.query;
-    console.log(userInstitution + "\n\n" + req.params.id);
-    const exam = await Exam.findOne({
-      _id: req.params.id,
-      postedForStudents: true,
-      //institution: userInstitution, // Filter the exam by the user's institution
-    })
-      .populate({
-        path: "admin",
-        match: { institution: userInstitution }, // Further filter by the admin's institution
-      })
-      .exec();
-    //console.log("admin in exam", exam.admin);
-
-    if (!exam || !exam.admin) {
-      return res.status(404).json({ message: "Exam not found" });
+    // const userInstitution = req.query;
+    // console.log(userInstitution + "\n\n" + req.params.id);
+    // const questionForm = await QuestionForm.findOne({
+    //   _id: req.params.id,
+    //   postedForStudents: true,
+    //   //institution: userInstitution, // Filter the questionForm by the user's institution
+    // })
+      // .populate({
+      //   path: "createdBy",
+      //   // match: { institution: userInstitution }, // Further filter by the admin's institution
+      // })
+      // .exec();
+    //console.log("admin in questionForm", questionForm.createdBy);
+    const { formId } = req.params;
+    console.log(formId)
+    const questionForm = await QuestionForm.findById(req.params.id);
+    console.log(questionForm);
+    if (!questionForm || !questionForm.createdBy) {
+      return res.status(404).json({ message: "QuestionForm not found" });
     }
-    console.log(exam);
-    res.json(exam);
+    console.log(questionForm);
+    res.json(questionForm);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
 
-// Submit Exam Attempt
-exports.submitExamAttempt = async (req, res) => {
+// Submit QuestionForm Attempt
+exports.submitQuestionFormAttempt = async (req, res) => {
   try {
     const { score, malpracticeAttempts } = req.body;
     const newAttempt = new Attempt({
       user: req.user.id,
-      exam: req.params.id,
+      questionForm: req.params.id,
       score,
       malpracticeAttempts,
     });
+    const form = await QuestionForm.findById(formId);
+    if (form.accepting === false) {
+      return res
+        .status(302)
+        .json({ message: "This Form is no longer accepting responses" });
+    }
+    form.ansForms.push(answers);
+    await form.save();
     const attempt = await newAttempt.save();
     res.status(201).json(attempt);
   } catch (error) {
@@ -75,8 +84,8 @@ exports.submitExamAttempt = async (req, res) => {
   }
 };
 
-// Update Exam Attempt
-exports.updateExamAttempt = async (req, res) => {
+// Update QuestionForm Attempt
+exports.updateQuestionFormAttempt = async (req, res) => {
   try {
     const { score, malpracticeAttempts } = req.body;
     const attempt = await Attempt.findByIdAndUpdate(
