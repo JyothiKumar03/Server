@@ -39,6 +39,7 @@ const QuestionFormSchema = new mongoose.Schema({
       type:{type: String, required:true},
       options: [{ type: String }], // Array of options for multiple choice questions
       correctAnswer: { type: String }, // Correct answer for the question
+      required : {type: Boolean}
     },
   ],
   createdBy: {

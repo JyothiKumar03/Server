@@ -9,7 +9,7 @@ exports.getAllQuestionFormsForUser = async (req, res) => {
     })
       .populate({
         path: "createdBy",
-        match: { institution: userInstitution }, // Further filter by the admin's institution
+        // match: { institution: institutionName }, // Further filter by the admin's institution
       })
       .exec();
     //console.log("admin in questionForm", questionForms.createdBy);
@@ -43,7 +43,7 @@ exports.getQuestionFormByIdForUser = async (req, res) => {
       // })
       // .exec();
     //console.log("admin in questionForm", questionForm.createdBy);
-    const { formId } = req.params;
+    const { formId } = req.params.id;
     console.log(formId)
     const questionForm = await QuestionForm.findById(req.params.id);
     console.log(questionForm);
@@ -61,25 +61,31 @@ exports.getQuestionFormByIdForUser = async (req, res) => {
 // Submit QuestionForm Attempt
 exports.submitQuestionFormAttempt = async (req, res) => {
   try {
-    const { score, malpracticeAttempts } = req.body;
+    const { score, malpracticeAttempts ,answers } = req.body;
+    console.log('body received at submit',req.body);
+    console.log(req.params);
+    const formId  = req.params.questionFormId; // Extract formId from params
+    console.log('submit exam invoked');
     const newAttempt = new Attempt({
       user: req.user.id,
-      questionForm: req.params.id,
+      questionForm: req.params.questionFormId,
       score,
       malpracticeAttempts,
     });
     const form = await QuestionForm.findById(formId);
-    if (form.accepting === false) {
-      return res
-        .status(302)
-        .json({ message: "This Form is no longer accepting responses" });
-    }
+    // if (form.accepting === false) {
+    //   return res
+    //     .status(302)
+    //     .json({ message: "This Form is no longer accepting responses" });
+    // }
+    console.log('forms in submit - ', form);
     form.ansForms.push(answers);
     await form.save();
     const attempt = await newAttempt.save();
+    console.log('successful submit - ',attempt);
     res.status(201).json(attempt);
   } catch (error) {
-    console.error(error);
+    console.error('error in submission - ',error);
     res.status(500).json({ message: "Server Error" });
   }
 };

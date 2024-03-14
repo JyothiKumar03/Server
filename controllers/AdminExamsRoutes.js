@@ -7,7 +7,7 @@ exports.createQuestionForm = async (req, res) => {
     const { title, description, timeDuration, questions } = req.body;
     const { _id } = req.admin; // Assuming req.admin contains the logged-in admin's details
     console.log('admin called - ', req.admin);
-    const googleFormLink = shortid.generate();
+    const googleFormLink =  shortid.generate();
     console.log('create form route invoked', req.body);
     
     // Create a new QuestionForm document
@@ -43,6 +43,7 @@ exports.updateQuestionForm = async (req, res) => {
     // Set postedForStudents to true by default
     const updatedFields = {
       postedForStudents: true, // Set to true by default
+      googleFormLink :  `http://localhost:5173/ansForm/${req.params.id}`
     };
 
     const questionForm = await QuestionForm.findByIdAndUpdate(

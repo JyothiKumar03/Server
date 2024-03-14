@@ -41,12 +41,12 @@ router.post(
 router.get("/questionforms",  getAllQuestionFormsForUser);
 router.get("/questionforms/:id",  getQuestionFormByIdForUser);
 router.post(
-  "/questionforms/attempts",
+  "/questionforms/:questionFormId/attempts",
   authenticateUser,
   submitQuestionFormAttempt
 );
 router.put(
-  "/questionforms/:questionFormId/attempts/:attemptId",
+  "/questionforms/:formId/attempts/:attemptId",
   authenticateUser,
   updateQuestionFormAttempt
 );
