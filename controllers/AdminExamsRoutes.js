@@ -1,4 +1,4 @@
-const { QuestionForm, Admin } = require("../models/Schemas");
+const { QuestionForm, Admin ,Attempt } = require("../models/Schemas");
 const shortid = require("shortid");
 
 // Create QuestionForm
@@ -91,6 +91,41 @@ exports.getQuestionFormById = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
+  }
+};
+exports.getAttemptsForQuestionForm = async (req, res) => {
+  try {
+      const questionFormId = req.params.id;
+      console.log('formId-exams - ',req.params)
+      // console.log('attempt shcema - ',Attempt);
+      // Find all attempts for the given question form
+      const attempts = await Attempt.find({ questionForm: questionFormId }).populate('user');
+      console.log('attempts received - ',attempts);
+      // Calculate total score and malpractices for each user
+      const usersData = {};
+      attempts.forEach(attempt => {
+          const { user, score, malpracticeAttempts } = attempt;
+          if (!usersData[user.id]) {
+              usersData[user.id] = {
+                  username: user.username,
+                  email: user.email,
+                  score: score,
+                  totalMalpractices: malpracticeAttempts
+              };
+            }
+          // } else {
+          //     usersData[user._id].totalScore += score;
+          //     usersData[user._id].totalMalpractices += malpracticeAttempts;
+          // }
+      });
+
+      // Convert usersData object to array for easier manipulation
+      const usersArray = Object.values(usersData);
+      console.log('usersaRR - ',usersArray);
+      res.json(usersArray);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 

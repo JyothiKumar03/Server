@@ -66,6 +66,7 @@ const AttemptSchema = new mongoose.Schema({
       answer: { type: String, required: true },
     },
   ],
+  score:{type:Boolean},
   validated: { type: Boolean, default: false }, // Indicates whether the attempt has been validated against correct answers or not
   malpracticeAttempts: { type: Number, default: 0 }, // Total number of malpractices
 });
