@@ -11,6 +11,7 @@ const {
   getQuestionFormById,
   deleteQuestionForm,
   toggleFormStatus,
+  getAttemptsForQuestionForm,
 } = require("../controllers/AdminExamsRoutes");
 const {
   getAllQuestionFormsForUser,
@@ -19,6 +20,7 @@ const {
   updateQuestionFormAttempt,
   getAllAttemptsForUser,
   getAttemptByIdForUser,
+  
 } = require("../controllers/UserAttempts");
 
 // Admin routes
@@ -36,17 +38,18 @@ router.post(
   authenticateAdmin,
   toggleFormStatus
 );
+router.get("/admin/attempts/:id",authenticateAdmin,getAttemptsForQuestionForm)
 
 // User routes
 router.get("/questionforms",  getAllQuestionFormsForUser);
 router.get("/questionforms/:id",  getQuestionFormByIdForUser);
 router.post(
-  "/questionforms/attempts",
+  "/questionforms/:questionFormId/attempts",
   authenticateUser,
   submitQuestionFormAttempt
 );
 router.put(
-  "/questionforms/:questionFormId/attempts/:attemptId",
+  "/questionforms/:formId/attempts/:attemptId",
   authenticateUser,
   updateQuestionFormAttempt
 );

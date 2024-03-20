@@ -39,6 +39,7 @@ const QuestionFormSchema = new mongoose.Schema({
       type:{type: String, required:true},
       options: [{ type: String }], // Array of options for multiple choice questions
       correctAnswer: { type: String }, // Correct answer for the question
+      required : {type: Boolean}
     },
   ],
   createdBy: {
@@ -65,6 +66,7 @@ const AttemptSchema = new mongoose.Schema({
       answer: { type: String, required: true },
     },
   ],
+  score:{type:Number, default: 0},
   validated: { type: Boolean, default: false }, // Indicates whether the attempt has been validated against correct answers or not
   malpracticeAttempts: { type: Number, default: 0 }, // Total number of malpractices
 });

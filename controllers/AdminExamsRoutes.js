@@ -1,4 +1,4 @@
-const { QuestionForm, Admin } = require("../models/Schemas");
+const { QuestionForm, Admin ,Attempt } = require("../models/Schemas");
 const shortid = require("shortid");
 
 // Create QuestionForm
@@ -7,7 +7,7 @@ exports.createQuestionForm = async (req, res) => {
     const { title, description, timeDuration, questions } = req.body;
     const { _id } = req.admin; // Assuming req.admin contains the logged-in admin's details
     console.log('admin called - ', req.admin);
-    const googleFormLink = shortid.generate();
+    const googleFormLink =  shortid.generate();
     console.log('create form route invoked', req.body);
     
     // Create a new QuestionForm document
@@ -43,6 +43,7 @@ exports.updateQuestionForm = async (req, res) => {
     // Set postedForStudents to true by default
     const updatedFields = {
       postedForStudents: true, // Set to true by default
+      googleFormLink :  `http://localhost:5173/ansForm/${req.params.id}`
     };
 
     const questionForm = await QuestionForm.findByIdAndUpdate(
@@ -90,6 +91,41 @@ exports.getQuestionFormById = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
+  }
+};
+exports.getAttemptsForQuestionForm = async (req, res) => {
+  try {
+      const questionFormId = req.params.id;
+      console.log('formId-exams - ',req.params)
+      // console.log('attempt shcema - ',Attempt);
+      // Find all attempts for the given question form
+      const attempts = await Attempt.find({ questionForm: questionFormId }).populate('user');
+      console.log('attempts received - ',attempts);
+      // Calculate total score and malpractices for each user
+      const usersData = {};
+      attempts.forEach(attempt => {
+          const { user, score, malpracticeAttempts } = attempt;
+          if (!usersData[user.id]) {
+              usersData[user.id] = {
+                  username: user.username,
+                  email: user.email,
+                  score: 0,
+                  totalMalpractices: 0
+              }
+            } else {
+              usersData[user._id].score += score;
+              usersData[user._id].totalMalpractices += malpracticeAttempts;
+          }
+          
+      });
+
+      // Convert usersData object to array for easier manipulation
+      const usersArray = Object.values(usersData);
+      console.log('usersaRR - ',usersArray);
+      res.json(usersArray);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 

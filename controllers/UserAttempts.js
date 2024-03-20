@@ -9,7 +9,7 @@ exports.getAllQuestionFormsForUser = async (req, res) => {
     })
       .populate({
         path: "createdBy",
-        match: { institution: userInstitution }, // Further filter by the admin's institution
+        // match: { institution: institutionName }, // Further filter by the admin's institution
       })
       .exec();
     //console.log("admin in questionForm", questionForms.createdBy);
@@ -43,7 +43,7 @@ exports.getQuestionFormByIdForUser = async (req, res) => {
       // })
       // .exec();
     //console.log("admin in questionForm", questionForm.createdBy);
-    const { formId } = req.params;
+    const { formId } = req.params.id;
     console.log(formId)
     const questionForm = await QuestionForm.findById(req.params.id);
     console.log(questionForm);
@@ -61,27 +61,51 @@ exports.getQuestionFormByIdForUser = async (req, res) => {
 // Submit QuestionForm Attempt
 exports.submitQuestionFormAttempt = async (req, res) => {
   try {
-    const { score, malpracticeAttempts } = req.body;
-    const newAttempt = new Attempt({
-      user: req.user.id,
-      questionForm: req.params.id,
-      score,
-      malpracticeAttempts,
-    });
+    const { malpracticeAttempts, answers } = req.body;
+    console.log('reqbody',req.body);
+    const formId = req.params.questionFormId; // Extract formId from params
+    console.log('req-params : ',req.params)
+    console.log('submit exam invoked');
+  
     const form = await QuestionForm.findById(formId);
-    if (form.accepting === false) {
-      return res
-        .status(302)
-        .json({ message: "This Form is no longer accepting responses" });
+  
+    // Ensure the form exists
+    if (!form) {
+      return res.status(404).json({ message: "Form not found" });
     }
+  
+    // Validate answers and calculate score
+    let score = 0;
+    answers.forEach((userAnswer, index) => {
+      const question = form.questions[index];
+      const correctAnswer = question.correctAnswer;
+      const selectedOption = question.options[userAnswer]; // Obtain the selected option using the index
+      console.log(`userAns - ${selectedOption} , correctAns - ${correctAnswer}`);
+      if (selectedOption === correctAnswer) {
+        score++;
+      }
+    });
+    
+  
     form.ansForms.push(answers);
     await form.save();
+  
+    // Create a new attempt with the calculated score
+    const newAttempt = new Attempt({
+      user: req.user.id,
+      questionForm: formId,
+      malpracticeAttempts,
+      score,
+    });
+  
+    // Save the attempt
     const attempt = await newAttempt.save();
+  
     res.status(201).json(attempt);
   } catch (error) {
-    console.error(error);
+    console.error('error in submission - ', error);
     res.status(500).json({ message: "Server Error" });
-  }
+  }  
 };
 
 // Update QuestionForm Attempt
@@ -127,3 +151,5 @@ exports.getAttemptByIdForUser = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
+
+
