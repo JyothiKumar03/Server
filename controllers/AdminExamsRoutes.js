@@ -109,14 +109,14 @@ exports.getAttemptsForQuestionForm = async (req, res) => {
               usersData[user.id] = {
                   username: user.username,
                   email: user.email,
-                  score: score,
-                  totalMalpractices: malpracticeAttempts
-              };
-            }
-          // } else {
-          //     usersData[user._id].totalScore += score;
-          //     usersData[user._id].totalMalpractices += malpracticeAttempts;
-          // }
+                  score: 0,
+                  totalMalpractices: 0
+              }
+            } else {
+              usersData[user._id].score += score;
+              usersData[user._id].totalMalpractices += malpracticeAttempts;
+          }
+          
       });
 
       // Convert usersData object to array for easier manipulation

@@ -40,7 +40,7 @@ router.post("/", async (req, res) => {
           button: {
             bgColour: "rgb(99 102 241)", // Optional action button color
             text: "Go To Form",
-            link,
+            // link,
           },
         },
         outro:
