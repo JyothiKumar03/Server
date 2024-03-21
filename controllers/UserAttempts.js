@@ -1,31 +1,46 @@
 const { Attempt, QuestionForm } = require("../models/Schemas");
 
 // Get All QuestionForms For User
-exports.getAllQuestionFormsForUser = async (req, res) => {
+// Add a new endpoint to update the isStarted field
+exports.startExam = async (req, res) => {
   try {
-    const questionForms = await QuestionForm.find({
-      postedForStudents: true,
-      //institution: userInstitution, // Filter questionForms by the user's institution
-    })
-      .populate({
-        path: "createdBy",
-        // match: { institution: institutionName }, // Further filter by the admin's institution
-      })
-      .exec();
-    //console.log("admin in questionForm", questionForms.createdBy);
-
-    // Remove questionForms where the admin's institution does not match the user's institution
-    const filteredQuestionForms = questionForms.filter(
-      (questionForm) => questionForm.createdBy !== null
+    const { questionFormId } = req.params;
+    console.log('StartExam - questionFormId: ', req.params);
+    const updatedQuestionForm = await QuestionForm.findByIdAndUpdate(
+      questionFormId,
+      { isStarted: true },
+      { new: true }
     );
-    console.log(questionForms);
-    //console.log(filteredQuestionForms);
-    res.json(filteredQuestionForms);
+    res.json(updatedQuestionForm);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
+
+// Modify the getAllQuestionFormsForUser endpoint to fetch exams belonging to the user's institution
+exports.getAllQuestionFormsForUser = async (req, res) => {
+  try {
+    console.log('USER', req.user)
+    const userInstitution = req.user.institutionName; // Assuming user's institution is stored in req.user.institution
+
+    const questionForms = await QuestionForm.find({
+      postedForStudents: true,
+      // institution: userInstitution, // Filter by the user's institution
+    })
+      .populate({
+        path: "createdBy",
+        match: { institution: userInstitution },
+      })
+      .exec();
+      console.log('quesforms - ',questionForms)
+    res.json(questionForms);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 
 exports.getQuestionFormByIdForUser = async (req, res) => {
   try {
@@ -74,17 +89,25 @@ exports.submitQuestionFormAttempt = async (req, res) => {
       return res.status(404).json({ message: "Form not found" });
     }
   
-    // Validate answers and calculate score
     let score = 0;
     answers.forEach((userAnswer, index) => {
       const question = form.questions[index];
-      const correctAnswer = question.correctAnswer;
-      const selectedOption = question.options[userAnswer]; // Obtain the selected option using the index
-      console.log(`userAns - ${selectedOption} , correctAns - ${correctAnswer}`);
-      if (selectedOption === correctAnswer) {
-        score++;
+      console.log(question.correctAnswer)
+      const correctAnswers = Array.isArray(question.correctAnswer) ? question.correctAnswer.split(',') : question.correctAnswer
+      const selectedOption = Array.isArray(userAnswer) ? userAnswer.map(ansIndex => question.options[ansIndex]) : question.options[userAnswer]; // Obtain the selected option using the index or indices
+      console.log(`userAns - ${selectedOption} , correctAns - ${correctAnswers}`);
+
+      if (Array.isArray(selectedOption)) {
+        if (selectedOption.every(option => correctAnswers.includes(option))) {
+          score++;
+        }
+      } else {
+        if (correctAnswers.includes(selectedOption)) {
+          score++;
+        }
       }
     });
+
     
   
     form.ansForms.push(answers);

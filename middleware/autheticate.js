@@ -35,7 +35,7 @@ const authenticateAdmin = async function (req, res, next) {
 // Middleware function to authenticate user
 const authenticateUser = async function (req, res, next) {
   const token = req.header("x-auth-token");
-
+  console.log('auth-token - ',token)
   if (!token) {
     return res.status(401).json({ message: "No token, authorization denied" });
   }
@@ -45,12 +45,12 @@ const authenticateUser = async function (req, res, next) {
 
     const id = decoded.user.id;
     const user = await User.findById(id);
-    //console.log("authenticate user - ", user);
+    console.log("authenticate user - ", user);
     if (!user) {
       throw new Error();
     }
-
     req.user = user;
+    console.log('authenticateUser successful')
     next();
   } catch (error) {
     console.log("not valid token");

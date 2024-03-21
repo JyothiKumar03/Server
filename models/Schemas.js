@@ -31,6 +31,7 @@ const QuestionFormSchema = new mongoose.Schema({
   timeDuration: { type: String, required: true }, // Time duration in minutes
   googleFormLink: { type: String, required: true }, // Link to the form for students
   postedForStudents: { type: Boolean, default: false }, // Indicates whether the form has been posted to students or not
+  isStarted: { type: Boolean, default: false },
   created: {type: Date,required: true,default: Date.now,},
   accepting: {type: Boolean,required: true,default: true,},
   questions: [
