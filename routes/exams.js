@@ -20,6 +20,7 @@ const {
   updateQuestionFormAttempt,
   getAllAttemptsForUser,
   getAttemptByIdForUser,
+  startExam
   
 } = require("../controllers/UserAttempts");
 
@@ -41,7 +42,10 @@ router.post(
 router.get("/admin/attempts/:id",authenticateAdmin,getAttemptsForQuestionForm)
 
 // User routes
-router.get("/questionforms",  getAllQuestionFormsForUser);
+router.get("/questionforms",authenticateUser,  getAllQuestionFormsForUser);
+//to update the startExam
+router.put("/:id/start",authenticateUser, startExam);
+
 router.get("/questionforms/:id",  getQuestionFormByIdForUser);
 router.post(
   "/questionforms/:questionFormId/attempts",
@@ -58,6 +62,7 @@ router.get(
   authenticateUser,
   getAllAttemptsForUser
 );
+
 router.get(
   "/questionforms/:questionFormId/attempts/:attemptId",
   authenticateUser,

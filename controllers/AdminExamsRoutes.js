@@ -72,7 +72,7 @@ exports.getAllQuestionForms = async (req, res) => {
     console.log('all questions - ', admin_forms.questionforms)
     res.json(admin_forms.questionforms); // Note the lowercase 'questionforms'
   } catch (error) {
-    console.error(error);
+    console.status(200).error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
@@ -87,7 +87,7 @@ exports.getQuestionFormById = async (req, res) => {
       return res.status(404).json({ message: "QuestionForm not found" });
     }
     console.log('qs from server - ',questionForm);
-    res.json(questionForm);
+    res.status(200).json(questionForm);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
@@ -109,12 +109,12 @@ exports.getAttemptsForQuestionForm = async (req, res) => {
               usersData[user.id] = {
                   username: user.username,
                   email: user.email,
-                  score: 0,
-                  totalMalpractices: 0
+                  score: score,
+                  totalMalpractices: malpracticeAttempts
               }
             } else {
               usersData[user._id].score += score;
-              usersData[user._id].totalMalpractices += malpracticeAttempts;
+              usersData[user._id].malpracticeAttempts += malpracticeAttempts;
           }
           
       });
@@ -122,7 +122,7 @@ exports.getAttemptsForQuestionForm = async (req, res) => {
       // Convert usersData object to array for easier manipulation
       const usersArray = Object.values(usersData);
       console.log('usersaRR - ',usersArray);
-      res.json(usersArray);
+      res.status(200).json(usersArray);
   } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Internal Server Error' });
