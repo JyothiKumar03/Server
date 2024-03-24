@@ -75,7 +75,7 @@ const loginUser = async (req, res) => {
       { expiresIn: "5d" },
       (err, token) => {
         if (err) throw err;
-        res.json({ token, user: UserPayload });
+        res.status(200).json({ token, user: UserPayload });
       }
     );
   } catch (error) {

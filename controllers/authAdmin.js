@@ -55,7 +55,7 @@ exports.loginAdmin = async (req, res) => {
       { expiresIn: "5d" },
       (err, token) => {
         if (err) throw err;
-        res.json({ token: token, admin: AdminPayload.Admin });
+        res.status(200).json({ token: token, admin: AdminPayload.Admin });
       }
     );
   } catch (error) {
