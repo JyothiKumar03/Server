@@ -334,17 +334,18 @@ exports.getAllAttemptsForUser = async (req, res) => {
     console.log('attempts - ',attempts[0])
     const exams = attempts.map(attempt => {
       return {
-        examTitle: attempt.questionForm.title,
-        score: attempt.score,
-        time: attempt.questionForm.timeDuration,
-        questionFormId : attempt.questionForm.id,
-        attemptId : attempt.id
+        examTitle: attempt.questionForm? attempt.questionForm.title : '',
+        score: attempt?.score,
+        time: attempt.questionForm?.timeDuration,
+        questionFormId : attempt.questionForm?.id,
+        attemptId : attempt?.id
       };
     });
-    console.log('exams received - ',exams)
+    // console.log('exams received - ',exams)
     res.status(200).json(exams);
   } catch (error) {
     // Handle errors
+    console.log('error in retriving exams - ',error.message)
     res.status(500).json({ message: `Server Error , ${error.message}` });
   }
 }

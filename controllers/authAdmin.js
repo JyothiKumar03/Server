@@ -27,14 +27,18 @@ exports.registerAdmin = async (req, res) => {
 
 exports.loginAdmin = async (req, res) => {
   try {
+    console.log('admin-login - ',req.body);
     const { email, password } = req.body;
     const admin = await Admin.findOne({ email });
+    // console.log('admin- ',admin)
     if (!admin) {
+      console.log('admin not found')
       return res.status(400).json({ message: "Invalid credentials" });
     }
     //compare passwords
     const isValidPassword = await bcrypt.compare(password, admin.password);
     if (!isValidPassword) {
+      console.log('incorrect password')
       return res.status(400).json({ message: "Invalid credentials" });
     }
     //create and sign token
